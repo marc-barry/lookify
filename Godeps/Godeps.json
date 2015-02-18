@@ -1,0 +1,19 @@
+{
+	"ImportPath": "github.com/marc-barry/lookify",
+	"GoVersion": "go1.4.1",
+	"Deps": [
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.6.4",
+			"Rev": "58f778a886b1e483dccc3b61085ccf347bf1a37e"
+		},
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "14f550f51af52180c2eefed15e5fd18d63c0a64a"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "8a875a034c69b940914d83ea03d3f1299b4d094b"
+		}
+	]
+}
