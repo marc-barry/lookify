@@ -60,11 +60,13 @@ func main() {
 		if err := <-StartHTTPServer(*httpPort); err != nil {
 			Log.WithField("error", err).Fatal("Error starting HTTP server.")
 		}
-	} else {
-		// If HTTP is not enabled we need to block with a wait on a WaitGroup.
-		wg.Add(1)
-		wg.Wait()
+
+		return
 	}
+
+	// If HTTP is not enabled we need to block with a wait on a WaitGroup.
+	wg.Add(1)
+	wg.Wait()
 }
 
 func shutdown(code int) {
@@ -73,7 +75,7 @@ func shutdown(code int) {
 	// If HTTP is enabled we must exit in order to cause the HTTP server to shutdown.
 	if *httpEnable {
 		os.Exit(0)
-	} else {
-		wg.Done()
 	}
+
+	wg.Done()
 }
