@@ -55,6 +55,8 @@ func main() {
 		}
 	}()
 
+	go withLogging(readStdin)
+
 	// If HTTP is enable start the HTTP server (which blocks).
 	if *httpEnable {
 		if err := <-StartHTTPServer(*httpPort); err != nil {
