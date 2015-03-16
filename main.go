@@ -12,9 +12,8 @@ import (
 )
 
 const (
-	HTTPEnableFlag  = "http-enable"
-	HTTPPortFlag    = "http-port"
-	HTTPLogPathFlag = "http-log-path"
+	HTTPEnableFlag = "http-enable"
+	HTTPPortFlag   = "http-port"
 )
 
 var (
