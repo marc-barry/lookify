@@ -32,7 +32,7 @@ func StartHTTPServer(port int) chan error {
 	http.Handle("/", r)
 
 	done := make(chan error)
-	go withLogging(func() {
+	go withPanicLogging(func() {
 		Log.WithField("port", port).Info("HTTP listen and serve.")
 		done <- http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	})
