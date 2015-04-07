@@ -1,11 +1,14 @@
 #!/bin/bash
 
+git rev-parse HEAD > REVISION
+
 tooling_gopath=/tmp/tooling-gopath
 
 function abs_path {
   (cd "$(dirname '$1')" &>/dev/null && echo $(pwd))
 }
 root_path="$(abs_path "$(dirname "${BASH_SOURCE[0]}")")"
+target="${root_path}/lookify"
 
 ensure_go_binary() {
   binary_name=$1
