@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
 )
 
@@ -64,4 +65,10 @@ func waitForSignals() {
 			Log.Warnf("Unknown signal %s", sig.String())
 		}
 	}
+}
+
+func mutexed(mu *sync.Mutex, f func()) {
+	defer mu.Unlock()
+	mu.Lock()
+	f()
 }

@@ -12,6 +12,7 @@ set -x
 go fmt .
 go vet .
 godep go build -o "${target}"
+godep go test
 
 config_errcheck
 run_errcheck

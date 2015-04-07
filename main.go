@@ -16,7 +16,13 @@ func main() {
 
 	opts := ParseOptions()
 
-	go withPanicLogging(readStdin)
+	bgp, err := NewBGP(os.Stdin)
+	if err != nil {
+		Log.WithField("error", err).Errorf("BGP initialization error")
+		os.Exit(1)
+	}
+
+	go withPanicLogging(bgp.ReadMessages)
 
 	if *opts.HTTPEnable {
 		go func() {
