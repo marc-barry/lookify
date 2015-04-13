@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"html/template"
 	"net/http"
+	"strings"
 )
 
 const (
@@ -13,19 +14,19 @@ const (
 	TemplateRouteVar = "template"
 	TypeRouteVar     = "type"
 
-	WebAssetsDir = "./assets"
-	TemplatesDir = "./templates"
+	WebAssetsDir = "assets"
+	TemplatesDir = "templates"
 )
 
-func StartHTTPServer(port int) chan error {
+func StartHTTPServer(port int, staticsPath string) chan error {
 	r := mux.NewRouter()
 
 	// This is the asset sub-router. It routes the "/assets" path prefix.
 	// Assets are found in sub-directories under /assets (i.e. css, js...)
 	assetsRouter := r.PathPrefix("/assets").Methods("GET").Subrouter()
-	assetsRouter.Handle("/{"+TypeRouteVar+"}/{"+FileRouteVar+"}", http.StripPrefix("/assets/", http.FileServer(http.Dir(WebAssetsDir))))
+	assetsRouter.Handle("/{"+TypeRouteVar+"}/{"+FileRouteVar+"}", http.StripPrefix("/assets/", http.FileServer(http.Dir(strings.Join([]string{staticsPath, WebAssetsDir}, "/")))))
 
-	thandler := NewTemplateHandler()
+	thandler := NewTemplateHandler(staticsPath)
 	r.Handle("/", thandler)
 	r.Handle("/{"+TemplateRouteVar+"}", thandler)
 
@@ -52,9 +53,9 @@ func newTemplateFuncMap() template.FuncMap {
 	}
 }
 
-func NewTemplateHandler() *TemplateHandler {
+func NewTemplateHandler(staticsPath string) *TemplateHandler {
 	funcs := newTemplateFuncMap()
-	return &TemplateHandler{baseTemplate: template.Must(template.New("base").Funcs(funcs).ParseGlob(TemplatesDir + "/*.html"))}
+	return &TemplateHandler{baseTemplate: template.Must(template.New("base").Funcs(funcs).ParseGlob(strings.Join([]string{staticsPath, TemplatesDir, "*.html"}, "/")))}
 }
 
 func (handler *TemplateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

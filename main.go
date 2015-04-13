@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/kardianos/osext"
 )
 
 var (
@@ -13,6 +14,11 @@ var (
 func main() {
 	// Set the log output to stderr since communication with ExaBGP is done via stdout.
 	Log.Out = os.Stderr
+
+	path, err := osext.ExecutableFolder()
+	if err != nil {
+		Log.WithField("error", err).Fatal(err)
+	}
 
 	opts := ParseOptions()
 
@@ -27,7 +33,7 @@ func main() {
 	if *opts.HTTPEnable {
 		go func() {
 			Log.Infof("Starting HTTP server on port %d", *opts.HTTPPort)
-			if err := <-StartHTTPServer(*opts.HTTPPort); err != nil {
+			if err := <-StartHTTPServer(*opts.HTTPPort, path); err != nil {
 				Log.WithField("error", err).Fatal("Error starting HTTP server")
 			}
 		}()
