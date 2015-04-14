@@ -22,6 +22,10 @@ func main() {
 
 	opts := ParseOptions()
 
+	if *opts.Debug {
+		Log.Level = logrus.DebugLevel
+	}
+
 	bgp, err := NewBGP(os.Stdin)
 	if err != nil {
 		Log.WithField("error", err).Errorf("BGP initialization error")
