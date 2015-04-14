@@ -9,6 +9,7 @@ import (
 
 	"github.com/Shopify/exabgp-util/types"
 	"github.com/Shopify/exabgp-util/util"
+	"github.com/Sirupsen/logrus"
 )
 
 const (
@@ -31,7 +32,7 @@ func NewBGP(reader io.Reader) (*BGP, error) {
 }
 
 func (bgp *BGP) handleNotificationMessage(t *types.NotificationType) {
-	Log.WithField("notification", fmt.Sprintf("%v", *t)).Debugf("Notification message")
+	Log.WithField("notification", fmt.Sprintf("%s", *t)).Debugf("Notification message")
 	if *t != types.NotificationType("shutdown") {
 		Log.Warnf("Unknown BGP notification message: %s", t)
 	}
@@ -42,6 +43,7 @@ func (bgp *BGP) handleNotificationMessage(t *types.NotificationType) {
 }
 
 func (bgp *BGP) handleStateMessage(t *types.StateType) {
+	Log.WithField("state", fmt.Sprintf("%+v", *t)).Debugf("State message")
 	switch t.State {
 	case "connected":
 		Log.Info("BGP session connected")
@@ -60,8 +62,7 @@ func (bgp *BGP) handleStateMessage(t *types.StateType) {
 }
 
 func (bgp *BGP) handleUpdateMessage(t *types.UpdateType) {
-	Log.WithField("message", fmt.Sprintf("%v", t.Message)).Debugf("Update message")
-
+	Log.WithField("message", fmt.Sprintf("%+v", *t)).Debugf("Update message")
 	mutexed(&bgp.uMu, func() {
 		bgp.updates = append(bgp.updates, t)
 	})
@@ -72,7 +73,10 @@ func (bgp *BGP) ReadMessages() {
 	messageChan := util.ScanMessage(bgp.reader)
 
 	for m := range messageChan {
-		Log.Debugf("Received BGP message: %v", *m)
+		Log.WithFields(logrus.Fields{
+			"type":    m.Type,
+			"message": fmt.Sprintf("%+v", *m),
+		}).Debugf("Received BGP message")
 		switch m.Type {
 		case types.NotificationMessageType:
 			t, err := types.UnmarshalNotificationType(m.Notification)
@@ -96,11 +100,11 @@ func (bgp *BGP) ReadMessages() {
 			}
 			bgp.handleUpdateMessage(t)
 		default:
-			Log.Warnf("Unknown BGP message type: %s", m.Type)
+			Log.WithField("type", m.Type).Warn("Unknown BGP message type")
 		}
 	}
 
-	Log.Info("Stopped BGP message scanner.")
+	Log.Info("Stopped BGP message scanner")
 }
 
 func (bgp *BGP) Notifications() []*types.NotificationType {
